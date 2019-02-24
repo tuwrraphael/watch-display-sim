@@ -12,6 +12,8 @@ add_executable(main
     src/nrf_gfx.c
     digit-watch-ui/src/buffer_display.c
     digit-watch-ui/src/roboto8pt.c
+    digit-watch-ui/src/digit_assets.c
+    digit-watch-ui/src/digit_ui_gfx.c
     src/png_utils.c)
 
 target_link_libraries(main PRIVATE PNG::PNG)

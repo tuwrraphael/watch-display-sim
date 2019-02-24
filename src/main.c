@@ -6,8 +6,8 @@
 #include "nrf_gfx.h"
 #include "nrf_font.h"
 #include "buffer_display.h"
-#include "math.h"
-#define M_PI (3.14159265358979323846)
+#include "digit_ui_gfx.h"
+#include "digit_assets.h"
 
 void write_buffer_display(display_png_t *displayPng)
 {
@@ -34,94 +34,11 @@ void write_buffer_display(display_png_t *displayPng)
   }
 }
 
-void draw_time_indicator(float s, float indicator_length, uint8_t thickness)
-{
-
-  float arg = ((float)(15 - s) * M_PI) / ((float)30);
-  uint8_t x = 64.0f + (cos(arg) * indicator_length);
-  uint8_t y = 64.0f - (sin(arg) * indicator_length);
-  if (x < 64 || y < 64)
-  {
-    nrf_gfx_line_t line = NRF_GFX_LINE(
-        x,
-        y,
-        64,
-        64, thickness);
-    (nrf_gfx_line_draw(&nrf_lcd_buffer_display, &line, 1));
-  }
-  else
-  {
-    nrf_gfx_line_t line = NRF_GFX_LINE(
-        64,
-        64,
-        x,
-        y, thickness);
-    (nrf_gfx_line_draw(&nrf_lcd_buffer_display, &line, 1));
-  }
-}
-
 static const char *test_text = "5 U1 Karlsplatz";
 
 extern const FONT_INFO roboto_8ptFontInfo;
 
 static const FONT_INFO *p_font = &roboto_8ptFontInfo;
-
-typedef struct
-{
-  uint8_t startByte;
-  uint8_t startBit;
-  uint8_t width;
-  uint8_t height;
-  uint32_t *data;
-} img_desc_t;
-
-const uint32_t image[] = {0x373fc000,0xee3ee326,0xe3ee3ee3,0xfc637e32,0x3};
-
-const img_desc_t test_img1 = {
-    .startByte = 0,
-    .startBit = 0,
-    .width = 12,
-    .height = 12,
-    .data = &image};
-
-void copy_image(img_desc_t *img, uint8_t m_x, uint8_t m_y)
-{
-  uint32_t col_mask = ~(0xFFFFFFFF << img->height);
-  uint8_t startBit = img->startBit;
-  uint8_t y = 128 - m_y - img->height + 1;
-  uint8_t imgByte = img->startByte;
-  for (uint8_t row = 0; row < img->width; row++)
-  {
-    uint8_t x = m_x + row;
-    uint16_t startIndex = 4 * (x) + ((y) / 32);
-    uint16_t targetBit = (y) % 32;
-    uint32_t copy_mask, to_copy;
-    copy_mask = (col_mask << startBit);
-    to_copy = (img->data[imgByte] & copy_mask) >> startBit;
-    if (startBit + img->height > 32)
-    {
-      imgByte++;
-      uint8_t copiedBefore = 32 - startBit;
-      copy_mask = (col_mask >> copiedBefore);
-      to_copy |= ((img->data[imgByte] & copy_mask) << copiedBefore);
-      startBit = img->height - copiedBefore;
-    }
-    else
-    {
-      startBit += img->height;
-      imgByte = imgByte + (startBit / 32);
-      startBit = startBit % 32;
-    }
-    display_buffer[startIndex] &= ~(to_copy << targetBit);
-    uint8_t copied = (32 - targetBit);
-    uint8_t leftOver = copied < img->height ? img->height - copied : 0;
-    if (leftOver > 0)
-    {
-      startIndex++;
-      display_buffer[startIndex] &= ~(to_copy >> copied);
-    }
-  }
-}
 
 int main(int argc, char *argv[])
 {
@@ -135,7 +52,7 @@ int main(int argc, char *argv[])
   nrf_gfx_rect_t rect = NRF_GFX_RECT(14, 29, 20, 20);
   // nrf_gfx_rect_draw(&nrf_lcd_buffer_display, &rect, 1, 1, false);
   nrf_gfx_print(&nrf_lcd_buffer_display, &text_start, 1, test_text, p_font, true);
-  copy_image(&test_img1, 15, 29);
+  render_packed_image(&icon_public_transport, 15, 29);
   write_buffer_display(&png);
 
   write_png_file("out.png", &png);
