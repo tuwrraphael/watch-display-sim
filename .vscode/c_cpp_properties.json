@@ -4,7 +4,7 @@
             "name": "Win32",
             "includePath": [
                 "${workspaceFolder}/**",
-                "C:\\git\\vcpkg\\installed\\x86-windows\\include"
+                "${VCPKG_ROOT}\\installed\\x86-windows\\include"
             ],
             "defines": [
                 "_DEBUG",
