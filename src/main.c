@@ -75,20 +75,18 @@ typedef struct
   uint32_t *data;
 } img_desc_t;
 
-const uint32_t image[] = {
-    0b11111111111100011111100000001111,
-    0b11000000000000000000000101101011};
+const uint32_t image[] = {0x373fc000,0xee3ee326,0xe3ee3ee3,0xfc637e32,0x3};
 
 const img_desc_t test_img1 = {
     .startByte = 0,
-    .startBit = 31,
-    .width = 5,
-    .height = 6,
+    .startBit = 0,
+    .width = 12,
+    .height = 12,
     .data = &image};
 
 void copy_image(img_desc_t *img, uint8_t m_x, uint8_t m_y)
 {
-  uint16_t col_mask = ~(0xFFFF << img->height);
+  uint32_t col_mask = ~(0xFFFFFFFF << img->height);
   uint8_t startBit = img->startBit;
   uint8_t y = 128 - m_y - img->height + 1;
   uint8_t imgByte = img->startByte;
@@ -103,10 +101,10 @@ void copy_image(img_desc_t *img, uint8_t m_x, uint8_t m_y)
     if (startBit + img->height > 32)
     {
       imgByte++;
-      startBit = 32 - startBit;
-      copy_mask = (col_mask >> (startBit));
-      to_copy |= ((img->data[imgByte] & copy_mask) << startBit);
-      startBit = img->height - startBit;
+      uint8_t copiedBefore = 32 - startBit;
+      copy_mask = (col_mask >> copiedBefore);
+      to_copy |= ((img->data[imgByte] & copy_mask) << copiedBefore);
+      startBit = img->height - copiedBefore;
     }
     else
     {
@@ -130,14 +128,14 @@ int main(int argc, char *argv[])
   display_png_t png;
   read_png_file("img/empty.png", &png);
   nrf_gfx_init(&nrf_lcd_buffer_display);
-  // draw_time_indicator(7, 25, 1);
-  // draw_time_indicator(27, 40, 1);
-  // draw_time_indicator(46, 40, 1);
-  // nrf_gfx_point_t text_start = NRF_GFX_POINT(15, 30);
+  draw_time_indicator(7, 25, 1);
+  draw_time_indicator(27, 40, 1);
+  draw_time_indicator(46, 40, 1);
+  nrf_gfx_point_t text_start = NRF_GFX_POINT(15 + 12 + 1, 30);
   nrf_gfx_rect_t rect = NRF_GFX_RECT(14, 29, 20, 20);
-  nrf_gfx_rect_draw(&nrf_lcd_buffer_display, &rect, 1, 1, false);
-  // nrf_gfx_print(&nrf_lcd_buffer_display, &text_start, 1, test_text, p_font, true);
-  copy_image(&test_img1, 15, 30);
+  // nrf_gfx_rect_draw(&nrf_lcd_buffer_display, &rect, 1, 1, false);
+  nrf_gfx_print(&nrf_lcd_buffer_display, &text_start, 1, test_text, p_font, true);
+  copy_image(&test_img1, 15, 29);
   write_buffer_display(&png);
 
   write_png_file("out.png", &png);
