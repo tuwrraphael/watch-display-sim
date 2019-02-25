@@ -38,7 +38,7 @@ void write_buffer_display(display_png_t *displayPng)
   }
 }
 
-static const char *test_text = "5 U1 Karlsplatz";
+static const char *test_text = "7 U2 Aspernstraße";
 
 extern const FONT_INFO roboto_8ptFontInfo;
 
@@ -72,10 +72,10 @@ void no_legs()
   clear_display_buffer();
   digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
   state.current_time = mktime(&current_time);
-  state.event_start_time = state.current_time + (60 * 48);
+  state.event_start_time = state.current_time + (60 * (48));
   state.display_options.directions_active = 1;
-  state.directions.arrival_time = state.current_time + (60 * 45);
-  state.directions.departure_time = state.current_time + (60 * 5);
+  state.directions.arrival_time = state.current_time + (60 * 50);
+  state.directions.departure_time = state.current_time + (60 * 28);
   digit_ui_render(&state);
   write_buffer_display(&png);
   write_png_file("no_legs.png", &png);
@@ -86,15 +86,23 @@ void leave_in()
   display_png_t png;
   read_png_file("img/empty.png", &png);
   clear_display_buffer();
-  digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
-  state.current_time = mktime(&current_time);
-  state.event_start_time = state.current_time + (60 * 48);
-  state.display_options.directions_active = 1;
-  state.directions.arrival_time = state.current_time + (60 * 45);
-  state.directions.departure_time = state.current_time + (60 * 5);
-  digit_ui_render(&state);
+  // digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
+  // state.current_time = mktime(&current_time);
+  // state.event_start_time = state.current_time + (60 * 48);
+  // state.display_options.directions_active = 1;
+  // state.directions.arrival_time = state.current_time + (60 * 45);
+  // state.directions.departure_time = state.current_time + (60 * 5);
+  // digit_ui_render(&state);
+  draw_time_indicator(34,35,2);
+  nrf_gfx_point_t text_start = NRF_GFX_POINT(15 + 12 + 1, 70);
+  // nrf_gfx_rect_t rect = NRF_GFX_RECT(14, 29, 20, 20);
+  // nrf_gfx_rect_draw(&nrf_lcd_buffer_display, &rect, 1, 1, false);
+  nrf_gfx_print(&nrf_lcd_buffer_display, &text_start, 1, test_text, p_font, true);
+  // render_packed_image(&icon_public_transport, 15, 69);
+  
+
   write_buffer_display(&png);
-  write_png_file("no_legs.png", &png);
+  write_png_file("test.png", &png);
 }
 
 int main(int argc, char *argv[])
