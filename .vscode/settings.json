@@ -2,6 +2,7 @@
     "files.associations": {
         "nrf_gfx.h": "c",
         "nrf_lcd.h": "c",
-        "nrf_drv_common.h": "c"
+        "nrf_drv_common.h": "c",
+        "nrf_def.h": "c"
     }
 }
