@@ -44,14 +44,16 @@ extern const FONT_INFO roboto_8ptFontInfo;
 
 static const FONT_INFO *p_font = &roboto_8ptFontInfo;
 
-static struct tm current_time = {
-    .tm_sec = 15,
-    .tm_min = 42,
-    .tm_hour = 21,
-    .tm_mday = 24,
-    .tm_mon = 2,
-    .tm_year = 2019 - 1900,
-    .tm_isdst = -1};
+#define TIME(HOUR, MINUTE)  \
+  {                         \
+    .tm_sec = 15,           \
+    .tm_min = MINUTE,       \
+    .tm_hour = HOUR,        \
+    .tm_mday = 24,          \
+    .tm_mon = 2,            \
+    .tm_year = 2019 - 1900, \
+    .tm_isdst = -1          \
+  }
 
 void time_only()
 {
@@ -59,26 +61,28 @@ void time_only()
   read_png_file("img/empty.png", &png);
   clear_display_buffer();
   digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
+  static struct tm current_time = TIME(15, 18);
   state.current_time = mktime(&current_time);
   digit_ui_render(&state);
   write_buffer_display(&png);
   write_png_file("time_only.png", &png);
 }
 
-void no_legs()
+void on_journey_no_legs()
 {
   display_png_t png;
   read_png_file("img/empty.png", &png);
   clear_display_buffer();
   digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
+  static struct tm current_time = TIME(15, 58);
   state.current_time = mktime(&current_time);
-  state.event_start_time = state.current_time + (60 * (48));
+  state.event_start_time = state.current_time + (60 * (41));
   state.display_options.directions_active = 1;
-  state.directions.arrival_time = state.current_time + (60 * 50);
-  state.directions.departure_time = state.current_time + (60 * 28);
+  state.directions.arrival_time = state.current_time + (60 * 45);
+  state.directions.departure_time = state.current_time - (60 * 5);
   digit_ui_render(&state);
   write_buffer_display(&png);
-  write_png_file("no_legs.png", &png);
+  write_png_file("on_journey_no_legs.png", &png);
 }
 
 void leave_in()
@@ -86,30 +90,24 @@ void leave_in()
   display_png_t png;
   read_png_file("img/empty.png", &png);
   clear_display_buffer();
-  // digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
-  // state.current_time = mktime(&current_time);
-  // state.event_start_time = state.current_time + (60 * 48);
-  // state.display_options.directions_active = 1;
-  // state.directions.arrival_time = state.current_time + (60 * 45);
-  // state.directions.departure_time = state.current_time + (60 * 5);
-  // digit_ui_render(&state);
-  draw_time_indicator(34,35,2);
-  nrf_gfx_point_t text_start = NRF_GFX_POINT(15 + 12 + 1, 70);
-  // nrf_gfx_rect_t rect = NRF_GFX_RECT(14, 29, 20, 20);
-  // nrf_gfx_rect_draw(&nrf_lcd_buffer_display, &rect, 1, 1, false);
-  nrf_gfx_print(&nrf_lcd_buffer_display, &text_start, 1, test_text, p_font, true);
-  // render_packed_image(&icon_public_transport, 15, 69);
-  
-
+  digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
+  static struct tm current_time = TIME(15, 14);
+  state.current_time = mktime(&current_time);
+  state.event_start_time = state.current_time + (60 * (35));
+  state.display_options.directions_active = 1;
+  strcpy(&state.event_subject, "Pubquiz");
+  state.directions.arrival_time = state.current_time + (60 * 34);
+  state.directions.departure_time = state.current_time + (60 * 12);
+  digit_ui_render(&state);
   write_buffer_display(&png);
-  write_png_file("test.png", &png);
+  write_png_file("leave_in.png", &png);
 }
 
 int main(int argc, char *argv[])
 {
   nrf_gfx_init(&nrf_lcd_buffer_display);
   time_only();
-  no_legs();
+  on_journey_no_legs();
   leave_in();
   // draw_time_indicator(7, 25, 1);
   // draw_time_indicator(27, 40, 1);
