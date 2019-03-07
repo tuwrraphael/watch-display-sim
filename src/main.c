@@ -55,6 +55,8 @@ static const FONT_INFO *p_font = &roboto_8ptFontInfo;
     .tm_isdst = -1          \
   }
 
+#define MINUTES(x) (x * 60)
+
 void time_only()
 {
   display_png_t png;
@@ -103,12 +105,70 @@ void leave_in()
   write_png_file("leave_in.png", &png);
 }
 
+void route()
+{
+  display_png_t png;
+  digit_ui_state_t state = DIGIT_UI_STATE_DEFAULT;
+  static struct tm ref_time = TIME(19, 1);
+  time_t reference_time = mktime(&ref_time);
+  state.event_start_time = reference_time + MINUTES(50);
+  state.display_options.directions_active = 1;
+  strcpy(&state.event_subject, "Pubquiz");
+  state.directions.arrival_time = state.event_start_time - MINUTES(3);
+  state.directions.departure_time = reference_time - MINUTES(1);
+  directions_leg_t legs[] = {
+      {.departure_stop = "Kagraner Anger",
+       .arrival_stop = "Kagran",
+       .direction = "Kagran",
+       .line = "94A",
+       .departure_time = state.directions.departure_time + MINUTES(5)},
+      {.departure_stop = "Kagran",
+       .arrival_stop = "Karlsplatz",
+       .direction = "Oberlaa",
+       .line = "U1",
+       .departure_time = state.directions.departure_time + MINUTES(16)},
+      {.departure_stop = "Karlsplatz",
+       .arrival_stop = "Pilgramgasse",
+       .direction = "Huetteldorf",
+       .line = "U4",
+       .departure_time = state.directions.departure_time + MINUTES(36)}};
+  state.directions.legs = legs;
+  state.directions.legs_count = sizeof(legs) / sizeof(legs[0]);
+
+  state.current_time = state.directions.departure_time - MINUTES(20);
+  read_png_file("img/empty.png", &png);
+  clear_display_buffer();
+  digit_ui_render(&state);
+  write_buffer_display(&png);
+  write_png_file("route_s0_before_leave.png", &png);
+
+  state.current_time = state.directions.departure_time + MINUTES(1);
+  read_png_file("img/empty.png", &png);
+  clear_display_buffer();
+  digit_ui_render(&state);
+  write_buffer_display(&png);
+  write_png_file("route_s1_on_way.png", &png);
+
+  for (int i = 0; i < state.directions.legs_count; i++)
+  {
+    char fileName[30];
+    state.current_time = state.directions.legs[i].departure_time + MINUTES(2);
+    read_png_file("img/empty.png", &png);
+    clear_display_buffer();
+    digit_ui_render(&state);
+    write_buffer_display(&png);
+    sprintf(&fileName, "route_s%d_leg%d.png", i + 2, i);
+    write_png_file(&fileName, &png);
+  }
+}
+
 int main(int argc, char *argv[])
 {
   nrf_gfx_init(&nrf_lcd_buffer_display);
   time_only();
   on_journey_no_legs();
   leave_in();
+  route();
   // draw_time_indicator(7, 25, 1);
   // draw_time_indicator(27, 40, 1);
   // draw_time_indicator(46, 40, 1);
