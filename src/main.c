@@ -97,6 +97,7 @@ void leave_in()
   state.current_time = mktime(&current_time);
   state.event_start_time = state.current_time + (60 * (35));
   state.display_options.directions_active = 1;
+  state.display_options.event_active = 1;
   strcpy(&state.event_subject, "Pubquiz");
   state.directions.arrival_time = state.current_time + (60 * 34);
   state.directions.departure_time = state.current_time + (60 * 12);
@@ -113,14 +114,16 @@ void route()
   time_t reference_time = mktime(&ref_time);
   state.event_start_time = reference_time + MINUTES(50);
   state.display_options.directions_active = 1;
+  state.display_options.event_active = 1;
   strcpy(&state.event_subject, "Pubquiz");
   state.directions.arrival_time = state.event_start_time - MINUTES(3);
   state.directions.departure_time = reference_time - MINUTES(1);
+  state.directions.valid_legs = 0b111;
   directions_leg_t legs[] = {
-      {.departure_stop = "Kagraner Anger",
-       .arrival_stop = "Kagran",
-       .direction = "Kagran",
-       .line = "94A",
+      {.departure_stop = "Wien  Polgreltzstrasse",
+       .arrival_stop = "Wien Kagraner Platz",
+       .direction = "Wien Kagraner Platz",
+       .line = "N25",
        .departure_time = state.directions.departure_time + MINUTES(5)},
       {.departure_stop = "Kagran",
        .arrival_stop = "Karlsplatz",

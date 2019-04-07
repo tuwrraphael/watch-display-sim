@@ -130,7 +130,7 @@ typedef struct
      *
      * @param[in] invert        If true, inversion will be set.
      */
-    void (* lcd_display_invert)(bool invert);
+    void (* lcd_display_invert)(uint8_t invert);
 
     /**
      * @brief Pointer to the LCD instance control block.
