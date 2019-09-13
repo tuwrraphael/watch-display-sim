@@ -1,5 +1,6 @@
 #include "png.h"
 #include "png_utils.h"
+#include <stdlib.h.>
 
 void read_png_file(char *filename, display_png_t *displayPng) {
   FILE *fp = fopen(filename, "rb");
